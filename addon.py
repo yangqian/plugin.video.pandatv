@@ -39,12 +39,15 @@ def list_videos(category):
     f=urllib2.urlopen('http://www.panda.tv/cate/'+category)
     rr=BeautifulSoup(f.read())
     videol=rr.findAll('a',{'class':'video-list-item-inner'})
-    rrr=rrr=[(x['href'][1:],x.img,x.findNext('div',{'class':'live-info'}).span.text) for x in videol]
+    rrr=rrr=[(x['href'][1:],x.img,x.findNext('div',{'class':'live-info'}).findAll('span')) for x in videol]
     listing=[]
-    for roomid,image,nickname in rrr:
+    for roomid,image,liveinfo in rrr:
         img=image['src']
         roomname=image['alt']
-        combinedname=u'{0}:{1}'.format(nickname,roomname)
+        nickname=liveinfo[0].text
+        peoplenumber=liveinfo[1].text
+
+        combinedname=u'{0}:{1}:{2}'.format(nickname,roomname,peoplenumber)
         list_item=xbmcgui.ListItem(label=combinedname,thumbnailImage=img)
         list_item.setProperty('fanart_image',img)
         url='{0}?action=play&video={1}'.format(_url,roomid)
