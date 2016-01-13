@@ -21,7 +21,7 @@ def list_categories():
     f=urllib2.urlopen('http://www.panda.tv/cate')
     rr=BeautifulSoup(f.read())
     catel=rr.findAll('li',{'class':'category-list-item'})
-    rrr=rrr=[(x.a['class'], x.a.text) for x in catel]
+    rrr=[(x.a['class'], x.a['title']) for x in catel]
     listing=[]
     for classname,text in rrr:
         img=rr.find('img',{'alt':text})['src']
@@ -39,13 +39,13 @@ def list_videos(category):
     f=urllib2.urlopen('http://www.panda.tv/cate/'+category)
     rr=BeautifulSoup(f.read())
     videol=rr.findAll('a',{'class':'video-list-item-inner'})
-    rrr=rrr=[(x['href'][1:],x.img,x.findNext('div',{'class':'live-info'}).findAll('span')) for x in videol]
+    rrr=[(x['href'][1:],x.img,x.findNextSibling('div',{'class':'live-info'})) for x in videol]
     listing=[]
     for roomid,image,liveinfo in rrr:
         img=image['src']
         roomname=image['alt']
-        nickname=liveinfo[0].text
-        peoplenumber=liveinfo[1].text
+        nickname=liveinfo.find('span',{'class':'nick-name'}).text
+        peoplenumber=liveinfo.find('span',{'class':'people-number'}).text
 
         combinedname=u'{0}:{1}:{2}'.format(nickname,roomname,peoplenumber)
         list_item=xbmcgui.ListItem(label=combinedname,thumbnailImage=img)
